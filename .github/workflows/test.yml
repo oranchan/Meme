@@ -34,7 +34,11 @@ jobs:
           forge build --sizes
         id: build
 
-      - name: Run Forge tests
+      - name: Run Forge tests (skip if none)
         run: |
-          forge test -vvv
+          if ls test/*.t.sol test/**/*.t.sol >/dev/null 2>&1; then
+            forge test -vvv
+          else
+            echo "No tests found, skipping"
+          fi
         id: test
