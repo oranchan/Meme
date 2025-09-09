@@ -62,5 +62,5 @@ contract TradingLimiter {
         }
         tradeCount[account] += 1;
         lastTradeTime[account] = block.timestamp;
-    } 
+    }
 }

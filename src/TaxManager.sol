@@ -35,7 +35,7 @@ contract TaxManager {
         return (amount * 2) / 100; // 2% tax
     }
 
-    /// @notice Simple tax exemption logic placeholder (currently only zero address). 
+    /// @notice Simple tax exemption logic placeholder (currently only zero address).
     /// @dev In production this would likely be replaced with role or mapping checks.
     /// @param account Address to examine.
     /// @return True if tax-exempt.
@@ -50,7 +50,10 @@ contract TaxManager {
     /// @return liquidity Aggregated liquidity allocation after update.
     /// @return development Aggregated development allocation after update.
     /// @return burn Aggregated burn allocation after update.
-    function allocateTax(uint256 taxAmount) public returns (uint256 marketing, uint256 liquidity, uint256 development, uint256 burn) {
+    function allocateTax(uint256 taxAmount)
+        public
+        returns (uint256 marketing, uint256 liquidity, uint256 development, uint256 burn)
+    {
         marketingTax += (taxAmount * 40) / 100; // 40% to marketing
         liquidityTax += (taxAmount * 30) / 100; // 30% to liquidity
         developmentTax += (taxAmount * 20) / 100; // 20% to development

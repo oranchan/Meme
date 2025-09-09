@@ -6,40 +6,42 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 /// @title LiquidityManager
 /// @notice Handles creation of the token/WETH pair and initial & subsequent liquidity additions.
 /// @dev The contract deployer becomes the immutable owner responsible for initializing liquidity.
-interface IUniswapV2Factory { 
-    function createPair(address tokenA, address tokenB) external returns (address pair); 
+interface IUniswapV2Factory {
+    function createPair(address tokenA, address tokenB) external returns (address pair);
     function getPair(address tokenA, address tokenB) external view returns (address pair);
 }
+
 interface IUniswapV2Router02 {
     function WETH() external pure returns (address);
     function addLiquidityETH(
         address tokenA,
-        uint amountADesired,
-        uint amountAMin,
-        uint amountEthMin,
+        uint256 amountADesired,
+        uint256 amountAMin,
+        uint256 amountEthMin,
         address to,
-        uint deadline
-    ) external payable returns (uint amountA, uint amountB, uint liquidity);
+        uint256 deadline
+    ) external payable returns (uint256 amountA, uint256 amountB, uint256 liquidity);
     function removeLiquidityETH(
         address tokenA,
-        uint liquidity,
-        uint amountAMin,
-        uint amountEthMin,
+        uint256 liquidity,
+        uint256 amountAMin,
+        uint256 amountEthMin,
         address to,
-        uint deadline
-    ) external returns (uint amountA, uint amountB);
+        uint256 deadline
+    ) external returns (uint256 amountA, uint256 amountB);
 }
+
 interface IUniswapV2Pair {
     function token0() external view returns (address);
     function token1() external view returns (address);
     function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);
-    function mint(address to) external returns (uint liquidity);
+    function mint(address to) external returns (uint256 liquidity);
     function sync() external;
 }
 
 interface IWETH {
     function deposit() external payable;
-    function transfer(address to, uint value) external returns (bool);
+    function transfer(address to, uint256 value) external returns (bool);
 }
 
 contract LiquidityManager {
@@ -48,7 +50,7 @@ contract LiquidityManager {
     /// @notice UniswapV2 factory address used to create or fetch the token/WETH pair.
     address public immutable factory;
     /// @notice UniswapV2 router address used for subsequent liquidity additions.
-    address public immutable router; 
+    address public immutable router;
     /// @notice Cached WETH address fetched from the router.
     address public immutable weth;
     /// @notice The pair address (token/WETH) once created or discovered.
@@ -58,10 +60,13 @@ contract LiquidityManager {
     /// @notice Contract owner (set at deployment). Can initialize liquidity.
     address public owner;
     /// @notice Tracks LP tokens minted to each address when using direct mint flow (only owner in current logic).
-    mapping(address => uint256) public liquidity; 
+    mapping(address => uint256) public liquidity;
 
     /// @dev Restricts functions to the owner only.
-    modifier onlyOwner { require(msg.sender == owner, "not owner"); _; }
+    modifier onlyOwner() {
+        require(msg.sender == owner, "not owner");
+        _;
+    }
 
     /// @param _token The ERC20 token address.
     /// @param _factory UniswapV2 factory address.
@@ -121,12 +126,7 @@ contract LiquidityManager {
         // Approve router to spend tokens for this liquidity addition
         require(IERC20(token).approve(router, tokenAmount), "approve fail");
         IUniswapV2Router02(router).addLiquidityETH{value: msg.value}(
-            token,
-            tokenAmount,
-            tokenAmount,
-            msg.value,
-            msg.sender,
-            block.timestamp + 300
+            token, tokenAmount, tokenAmount, msg.value, msg.sender, block.timestamp + 300
         );
     }
 
@@ -140,6 +140,6 @@ contract LiquidityManager {
         require(pair != address(0), "Pair not created");
         token0 = IUniswapV2Pair(pair).token0();
         token1 = IUniswapV2Pair(pair).token1();
-        (r0, r1, ) = IUniswapV2Pair(pair).getReserves();
+        (r0, r1,) = IUniswapV2Pair(pair).getReserves();
     }
 }
